@@ -36,7 +36,7 @@ const swap = function(data, i, j){
 const bubbleSort = function(data, draw, delay){
   delayedForLoop(1, data.length, (i, callback1)=>{
     delayedForLoop(0, i, (j, callback2)=> {
-      if (data[i] < data[j]){
+      if (data[i].v > data[j].v){
         swap(data, i, j);
       }
       callback2();
@@ -51,7 +51,7 @@ const insertionSort = function(data, draw, delay){
     let j = i;
 
     delayedWhile(()=> new Promise (resolve2 => {
-      if (j > 0 && data[j-1] < data[j]){
+      if (j > 0 && data[j-1].v < data[j].v){
         swap(data, j-1, j);
         j--;
         resolve2 (true);
@@ -64,8 +64,5 @@ const insertionSort = function(data, draw, delay){
 };
 
 
-const algorithms = [
-  {name:"Insertion Sort", run: insertionSort},
-  {name:"Bubble Sort", run: bubbleSort}
-]
+const algorithms = {insertionSort, bubbleSort}
 
