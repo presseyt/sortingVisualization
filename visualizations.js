@@ -1,7 +1,7 @@
 
 const sbox = d3.select('#sandbox');
 
-const N = 50;
+const N = 15;
 const scale = d3.scaleLinear().domain([0,N]).range([0,1]);
 const color = d3.interpolateViridis;
 
@@ -11,17 +11,17 @@ const svg = sbox.append('svg').attr('width', 500).attr('height', 500);
 const draw = function(data){
   var updated = svg.selectAll('g').data(data, d=>d);
 
-  var entered = updated.enter().append('g').attr('transform', (d,i)=>`translate(0,${i*6})`);
+  var entered = updated.enter().append('g').attr('transform', (d,i)=>`translate(0,${i*11})`);
 
   entered
     .append('rect')
-    .attr('width',50)
-    .attr('height',5)
+    .attr('width', d=>50+d)
+    .attr('height',10)
     .attr('fill', d=>color(scale(d)));
 
   var all = updated.merge(entered);
 
-  all.transition().duration(50).ease(d3.easeQuadInOut).attr('transform', (d,i)=>`translate(0,${i*6})`);
+  all.transition().duration(200).ease(d3.easeQuadInOut).attr('transform', (d,i)=>`translate(0,${i*11})`);
 };
 
 
@@ -30,5 +30,5 @@ draw(myData);
 
 setTimeout(()=>{
   console.log('timeout done')
-  algorithms[0].run(myData, draw, 45);
+  algorithms[1].run(myData, draw, 205);
 }, 1000)
