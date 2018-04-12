@@ -26,30 +26,30 @@ const svg = sbox.append('svg').attr('width', 500).attr('height', 500);
 
 
 const draw = function(data){
-  var updated = svg.selectAll('g').data(data, d=>d.type+d.v);
+  var updated = svg.selectAll('g').data(data, d=>d);
 
   var entered = updated.enter().append('g').attr('transform', (d,i)=>`translate(0,${i*11})`);
 
 
   entered
       .append('rect')
-      .attr('width', d=>50+d.v)
+      .attr('width', d=>50+d)
       .attr('height',10)
-      .attr('fill', d=>color(scale(d.v)));
+      .attr('fill', d=>color(scale(d)));
 
   var all = updated.merge(entered);
 
-  all.transition().duration(100).ease(d3.easeQuadInOut).attr('transform', (d,i)=>`translate(0,${i*11})`);
+  all.transition().duration(10).ease(d3.easeQuadInOut).attr('transform', (d,i)=>`translate(0,${i*11})`);
 };
 
 
 function startVisualization(sortFn){
 
-  let myData = d3.shuffle('0'.repeat(N).split('').map((d,i)=>{return {type: "data", v:i+1}}));
+  let myData = d3.shuffle('0'.repeat(N).split('').map((d,i)=>i+1));
   draw(myData);
 
   setTimeout(()=>{
-    sortFn(myData, draw, 105);
+    sortFn(myData, draw, 15);
   }, 200);
 
 }

@@ -1,68 +1,98 @@
-//Loops with a built in delay
 
-const delayedForLoop = function(start, end, callback, complete, delay){
-  //
-  if (start < end) {
-    callback(start, ()=> {
-      setTimeout(()=>{
-        delayedForLoop(++start, end, callback, complete, delay);
-      }, delay);
-    });
-  } else {
-    if(complete) complete();
-  }
-};
+//once we have the stack of operations to perform & display,
+  //we run through them with the given delay
+function run(data, draw, stack, delay){
+  setTimeout(()=>{
+    if (stack.length > 0){
+      let nextOperation = stack.shift();
+      if (nextOperation.method === "swap"){
+        swap(data, nextOperation.i, nextOperation.j);
+        draw(data);
+      }
+      run(data, draw, stack, delay);
+    }
+  }, delay);
+}
 
-const delayedWhile = async function(callback, delay){
-  //continues with the loop if callback return true
-  var bool = await callback();
-  if (bool){
-    setTimeout(()=>delayedWhile(callback, delay), delay);
-  }
 
-};
-
-//Utility Functions:
-const swap = function(data, i, j){
+//helper function used in many sorting algorithms
+function swap(data, i , j){
   let temp = data[i];
   data[i] = data[j];
   data[j] = temp;
+}
 
-  draw(data);
-};
 
-//Sorting algorithms:
 
-const bubbleSort = function(data, draw, delay){
-  delayedForLoop(1, data.length, (i, callback1)=>{
-    delayedForLoop(0, i, (j, callback2)=> {
-      if (data[i].v > data[j].v){
-        swap(data, i, j);
+//SORTING ALGORITHMS BELOW -------
+
+function bubbleSort(data, draw, delay){
+  const stack = [];
+  let dataCopy = [...data];
+
+  for(let i = 1; i < dataCopy.length; i++){
+    for (let j = 0; j < i; j++){
+      stack.push({method: "compare", i,j});
+      if (dataCopy[i] < dataCopy[j]){
+        stack.push({method: "swap", i,j});
+        swap(dataCopy, i,j);
       }
-      callback2();
-    }, ()=> callback1(), delay);
-  }, null, delay);
-};
+    }
+  }
 
+  run(data, draw, stack, delay);
+}
 
-const insertionSort = function(data, draw, delay){
+function insertionSort(data, draw, delay){
+  const stack = [];
+  let dataCopy = [...data];
+
   let i = 1;
-  delayedWhile( () => new Promise( resolve1 => {
-    let j = i;
+  while(i < dataCopy.length){
+    j = i;
+    while(j > 0){
+      stack.push({method:"compare", i:j-1, j});
+      if (dataCopy[j-1] < dataCopy[j]) break;
+      stack.push({method:"swap", i:j-1, j});
+      swap(dataCopy, j-1, j);
+      j--;
+    }
+    i++;
+  }
 
-    delayedWhile(()=> new Promise (resolve2 => {
-      if (j > 0 && data[j-1].v < data[j].v){
-        swap(data, j-1, j);
-        j--;
-        resolve2 (true);
-      } else {
-        resolve1(++i < data.length);
+  run(data, draw, stack, delay);
+}
+
+function quickSort(data, draw, delay){
+  const stack = [];
+  let dataCopy = [...data];
+
+  let sort = function(low, high){
+    if (high - low <= 1) return;
+
+    pivot = high - 1;
+
+    for (let i = low; i < pivot; i++){
+      stack.push({method:"compare", i, j:pivot});
+      if (dataCopy[i] > dataCopy[pivot]){
+        stack.push({method:"swap", i, j:pivot-1});
+        swap(dataCopy, i, pivot-1);
+        stack.push({method:"swap", i:pivot-1, j:pivot});
+        swap(dataCopy, pivot-1, pivot);
+        pivot--;
+        i--;
       }
-    }), delay);
+    }
 
-  }), delay);
-};
+    sort(low, pivot);
+    sort(pivot + 1, high);
+  };
+
+  sort(0, dataCopy.length);
+
+  run(data, draw, stack, delay);
+}
 
 
-const algorithms = {insertionSort, bubbleSort}
+const algorithms = {insertionSort, bubbleSort, quickSort}
 
